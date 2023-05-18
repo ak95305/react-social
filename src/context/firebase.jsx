@@ -1,7 +1,23 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import {
+    GoogleAuthProvider,
+    createUserWithEmailAndPassword,
+    getAuth,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    signOut,
+    updateProfile,
+} from "firebase/auth";
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    doc,
+    query,
+    getDocs,
+} from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBJAZM8DvPK-aeoQJwUd-BZg08fJYFQ2JA",
@@ -14,46 +30,87 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 const FirebaseContext = createContext(null);
-const auth = getAuth(firebaseApp)
+const auth = getAuth(firebaseApp);
+const googleProvider = new GoogleAuthProvider();
 const useFirebase = () => useContext(FirebaseContext);
 
 const FirebaseProvider = (props) => {
+    // User
+    const [user, setUser] = useState(null);
+    let isLoggedIn = false;
 
     // Create User
     const signUp = async (email, password) => {
-        try{
-            await createUserWithEmailAndPassword(auth, email, password)
-            .then( data => data );
-        }catch(error){
+        try {
+            return await createUserWithEmailAndPassword(auth, email, password);
+        } catch (error) {
             console.log(error);
         }
-    }
-    
+    };
+
     // Sign In User
     const signIn = async (email, password) => {
-        try{
-            await signInWithEmailAndPassword(auth, email, password)
-            .then( data => data );
-        }catch(error){
+        try {
+            return await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
             console.log(error);
         }
-    }
+    };
 
+    // SignOut
+    const logOut = () => {
+        signOut(auth)
+            .then(() => {
+                console.log("logged Out");
+            })
+            .catch((error) => console.log(error));
+    };
 
-
-    const addData = async (obj, col) => {
-        try{
-            await addDoc(collection(db, col), obj);  
-        }catch(error){
+    // Continue with Google
+    const googleSignIn = () => {
+        try {
+            return signInWithPopup(auth, googleProvider);
+        } catch (error) {
             console.log(error);
         }
+    };
+
+    //Manage User State
+    useEffect(() => {
+        onAuthStateChanged(auth, (user) => {
+            user ? setUser(user) : setUser(null);
+        });
+    }, []);
+
+    if (user) {
+        isLoggedIn = true;
+    } else {
+        isLoggedIn = false;
     }
+
+    const getPosts = async () => {
+        const postsQuery = query(collection(db, "posts"));
+        try {
+            return await getDocs(postsQuery);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const firebaseFunctions = {
+        signUp,
+        signIn,
+        logOut,
+        isLoggedIn,
+        googleSignIn,
+        getPosts,
+    };
 
     return (
-        <FirebaseContext.Provider value={{addData, signUp, signIn}}>
+        <FirebaseContext.Provider value={firebaseFunctions}>
             {props.children}
         </FirebaseContext.Provider>
-    )
-}
+    );
+};
 
-export {FirebaseProvider, useFirebase};
+export { FirebaseProvider, useFirebase };
