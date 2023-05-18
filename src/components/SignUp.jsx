@@ -1,9 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import blackLogo from "./../assets/logo-black.png";
 import { Alert, Box, Button, Grid, TextField } from "@mui/material";
 import { Link } from "react-router-dom";
+import { useFirebase } from "../context/firebase";
 
 function SignUp() {
+
+    const firebase = useFirebase();
+    const [signUpData, setSignUpData] = useState({
+        fullName: "",
+        email: "",
+        password: ""
+    });
+
+    // const [username, setUsername] = useState(null);
+    // const [fullName, setFullName] = useState(null);
+    // const [password, setPassword] = useState(null);
+
+
     return (
         <>
             <Alert severity="info">
@@ -41,22 +55,29 @@ function SignUp() {
                         <TextField
                             className="input"
                             id="outlined-basic"
+                            label="Full Name"
+                            variant="outlined"
+                            onChange={(evt) => setSignUpData({...signUpData, fullName: evt.target.value})}
+                        />
+                        <TextField
+                            className="input"
+                            id="outlined-basic"
                             label="Username"
                             variant="outlined"
-                            onChange={(evt) => setUsername(evt.target.value)}
+                            onChange={(evt) => setSignUpData({...signUpData, email: evt.target.value})}
                         />
                         <TextField
                             className="input"
                             id="outlined-basic"
                             label="Password"
                             variant="outlined"
-                            onChange={(evt) => setPassword(evt.target.value)}
+                            onChange={(evt) => setSignUpData({...signUpData, password: evt.target.value})}
                         />
                         <br />
                         <Button
                             sx={{ margin: "auto", display: "block" }}
                             variant="contained"
-                            onClick={() => firebase.signUp(username, password)}
+                            onClick={() => firebase.signUp(signUpData)}
                         >
                             Sign Up
                         </Button>

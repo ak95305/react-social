@@ -3,9 +3,7 @@ import "./App.css";
 import Header from "./components/header";
 import {
     Route,
-    RouterProvider,
     Routes,
-    createBrowserRouter,
     useLocation,
     useNavigate,
 } from "react-router-dom";
@@ -14,16 +12,23 @@ import Home from "./components/Home";
 import BottomNav from "./components/BottomNav";
 import AddPost from "./components/AddPost";
 import Profile from "./components/Profile";
+import { useFirebase } from "./context/firebase";
+import { useEffect } from "react";
 
 function App() {
     const location = useLocation();
     const path = location.pathname;
+    const firebase = useFirebase();
+    const navigate = useNavigate();
+    
+    useEffect(()=>{
+        !firebase.isLoggedIn ? navigate(`/signin`) : "";
+    }, []);
 
     return (
         <div className="app">
             <Header />
 
-            {/* <RouterProvider router={router} /> */}
             <Routes>
                 <Route exact path="/" element={<SignIn />}/>
                 <Route exact path="/signin" element={<SignIn />}/>
@@ -34,7 +39,7 @@ function App() {
             </Routes>
 
 
-            <BottomNav path={path}/>
+            {firebase.isLoggedIn && <BottomNav path={path}/> }
         </div>
     );
 }

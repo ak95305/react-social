@@ -1,24 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
-import {
-    GoogleAuthProvider,
-    createUserWithEmailAndPassword,
-    getAuth,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    signOut,
-    updateProfile,
-} from "firebase/auth";
-import {
-    getFirestore,
-    collection,
-    addDoc,
-    doc,
-    query,
-    getDocs,
-} from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { collection, getDocs, getFirestore, query } from "firebase/firestore";
+import { signIn, signUp, logOut, googleSignIn } from "./user-actions";
+import { getUser, getUserPosts } from "./database-actions";
 
+
+
+
+// Contants
 const firebaseConfig = {
     apiKey: "AIzaSyBJAZM8DvPK-aeoQJwUd-BZg08fJYFQ2JA",
     authDomain: "react-social-fee7f.firebaseapp.com",
@@ -28,53 +18,27 @@ const firebaseConfig = {
     appId: "1:408910413313:web:6411c90eb6076fef5d0a00",
 };
 const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
 const FirebaseContext = createContext(null);
 const auth = getAuth(firebaseApp);
-const googleProvider = new GoogleAuthProvider();
 const useFirebase = () => useContext(FirebaseContext);
+const db = getFirestore(firebaseApp);
+
+
+
+
+
 
 const FirebaseProvider = (props) => {
+
+
     // User
     const [user, setUser] = useState(null);
     let isLoggedIn = false;
+    let curUser = null;
 
-    // Create User
-    const signUp = async (email, password) => {
-        try {
-            return await createUserWithEmailAndPassword(auth, email, password);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    // Sign In User
-    const signIn = async (email, password) => {
-        try {
-            return await signInWithEmailAndPassword(auth, email, password);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    // SignOut
-    const logOut = () => {
-        signOut(auth)
-            .then(() => {
-                console.log("logged Out");
-            })
-            .catch((error) => console.log(error));
-    };
-
-    // Continue with Google
-    const googleSignIn = () => {
-        try {
-            return signInWithPopup(auth, googleProvider);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
+    
+    
+    
     //Manage User State
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
@@ -83,11 +47,16 @@ const FirebaseProvider = (props) => {
     }, []);
 
     if (user) {
+        curUser = user;
         isLoggedIn = true;
     } else {
         isLoggedIn = false;
     }
 
+
+
+    
+    // Get Posts
     const getPosts = async () => {
         const postsQuery = query(collection(db, "posts"));
         try {
@@ -97,6 +66,9 @@ const FirebaseProvider = (props) => {
         }
     };
 
+
+
+
     const firebaseFunctions = {
         signUp,
         signIn,
@@ -104,7 +76,13 @@ const FirebaseProvider = (props) => {
         isLoggedIn,
         googleSignIn,
         getPosts,
+        curUser,
+        getUser,
+        getUserPosts
     };
+
+
+
 
     return (
         <FirebaseContext.Provider value={firebaseFunctions}>
@@ -113,4 +91,6 @@ const FirebaseProvider = (props) => {
     );
 };
 
-export { FirebaseProvider, useFirebase };
+
+
+export { FirebaseProvider, useFirebase, auth, db };
