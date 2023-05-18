@@ -22,6 +22,7 @@ function Profile() {
     firebase.getUserPosts().then((data) => {
         data && setUserPosts(data.docs);
     });
+    
 
     return (
         <div className="profile">

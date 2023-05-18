@@ -1,5 +1,6 @@
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
-import { auth, db } from "./firebase";
+import { addDoc, collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { auth, db, storage } from "./firebase";
+import { ref, uploadBytesResumable } from "firebase/storage";
 
 // Get User Details
 const getUser = async () => {
@@ -20,7 +21,6 @@ const getUser = async () => {
 };
 
 
-
 // Get User Posts
 const getUserPosts = async () => {
     let userPosts;
@@ -35,4 +35,23 @@ const getUserPosts = async () => {
 }
 
 
-export { getUser, getUserPosts };
+// Publish Post
+const publishPost = (obj) => {
+    const storageRef = ref(storage, `/posts/${obj.post_img.name}`);
+    uploadBytesResumable(storageRef, obj.post_img);
+
+    let user = auth.currentUser;
+
+    let postData = {
+        post_caption: obj.post_caption,
+        post_date: new Date(),
+        post_img_url: obj.post_img.name,
+        user_id: user.uid
+    };
+
+    addDoc(collection(db, "posts"), postData);
+}
+
+
+
+export { getUser, getUserPosts, publishPost };

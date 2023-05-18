@@ -1,17 +1,25 @@
 import { Avatar, Card, CardActions, CardContent, CardHeader, CardMedia, IconButton, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
+import { useFirebase } from "../context/firebase";
 
 function Post(props) {
-
+    const [imgUrl, setImgUrl] = useState("");
+    const firebase = useFirebase();
     const post = props.post.data();
     
     const date = post.post_date.seconds * 1000 +  post.post_date.nanoseconds / 1000000;
     const postDate = new Date(date).toDateString().split(' ').slice(1).join(' ');
+
+    useEffect(()=>{
+        firebase.getPostImage(post.post_img_url).then(url=>{
+            setImgUrl(url);
+        });
+    }, []);
     
     return (
         <div className="post">
@@ -28,7 +36,7 @@ function Post(props) {
                 <CardMedia
                     component="img"
                     maxheight="345"
-                    image={post.post_img_url}
+                    image={imgUrl}
                     alt="Paella dish"
                 />
                 <CardContent>

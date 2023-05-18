@@ -3,7 +3,8 @@ import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, getFirestore, query } from "firebase/firestore";
 import { signIn, signUp, logOut, googleSignIn } from "./user-actions";
-import { getUser, getUserPosts } from "./database-actions";
+import { getUser, getUserPosts, publishPost } from "./database-actions";
+import { getDownloadURL, getStorage, ref } from "firebase/storage";
 
 
 
@@ -22,8 +23,7 @@ const FirebaseContext = createContext(null);
 const auth = getAuth(firebaseApp);
 const useFirebase = () => useContext(FirebaseContext);
 const db = getFirestore(firebaseApp);
-
-
+const storage = getStorage(firebaseApp);
 
 
 
@@ -66,6 +66,12 @@ const FirebaseProvider = (props) => {
         }
     };
 
+    // Get Post Image
+    const getPostImage = (id) => {
+        const pathRef = ref(storage, `posts/${id}`);
+        return getDownloadURL(pathRef);
+    }
+
 
 
 
@@ -78,7 +84,9 @@ const FirebaseProvider = (props) => {
         getPosts,
         curUser,
         getUser,
-        getUserPosts
+        getUserPosts,
+        publishPost,
+        getPostImage
     };
 
 
@@ -93,4 +101,4 @@ const FirebaseProvider = (props) => {
 
 
 
-export { FirebaseProvider, useFirebase, auth, db };
+export { FirebaseProvider, useFirebase, auth, db, storage };
