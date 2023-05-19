@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFirebase } from "../context/firebase";
+import EditIcon from "@mui/icons-material/Edit";
 import {
     Avatar,
     Box,
@@ -9,20 +10,38 @@ import {
     ImageListItem,
     Typography,
 } from "@mui/material";
+import { Link, useParams } from "react-router-dom";
 
 function Profile() {
     let [userProfile, setUserProfile] = useState(null);
     let [userPosts, setUserPosts] = useState([]);
     const firebase = useFirebase();
+    const params = useParams();
 
-    firebase.getUser().then((data) => {
-        setUserProfile(data);
-    });
-
-    firebase.getUserPosts().then((data) => {
-        data && setUserPosts(data.docs);
-    });
-    
+    if (userProfile == null) {
+        firebase.getUser(params.id).then((response) => {
+            const [uObj, userAuth] = response;
+            setUserProfile(uObj);
+            uObj && firebase.getPostImage(uObj.user_img, 'users').then((url) => {
+                uObj.imgUrl = url;
+            });
+        });
+        firebase.getUserPosts(params.id).then((data) => {
+            let tempUserPosts = [];
+            data &&
+                data.docs.map((item) => {
+                    firebase
+                        .getPostImage(item.data().post_img_url, 'posts')
+                        .then((url) => {
+                            let tempObj = item.data();
+                            tempObj.id = item.id;
+                            tempObj.imgUrl = url;
+                            tempUserPosts = [...tempUserPosts, tempObj];
+                            data && setUserPosts(tempUserPosts);
+                        });
+                });
+        });
+    }
 
     return (
         <div className="profile">
@@ -35,9 +54,14 @@ function Profile() {
                 <Grid item xs={6}>
                     <Avatar
                         alt={userProfile && userProfile.name}
-                        src={userProfile && userProfile.user_img}
-                        sx={{ width: 70, height: 70 }}
+                        src={userProfile && userProfile.imgUrl}
+                        sx={{ width: 70, height: 70, display: "inline-block" }}
                     />
+                    {!params.id && (
+                        <Link to="edit">
+                            <EditIcon />
+                        </Link>
+                    )}
                     <Typography
                         sx={{
                             fontSize: "18px",
@@ -90,17 +114,19 @@ function Profile() {
             </Grid>
 
             <ImageList
-                sx={{ maxWidth: 500, paddingTop: "20px" }}
+                sx={{ maxWidth: 500, paddingTop: "20px", overflow: "hidden" }}
                 cols={3}
                 rowHeight={164}
             >
                 {userPosts.map((item) => (
                     <ImageListItem key={item.id}>
-                        <img
-                            src={`${item.data().post_img_url}`}
-                            alt={item.data().post_caption}
-                            loading="lazy"
-                        />
+                        <Link to={`/post/${item.id}`}>
+                            <img
+                                src={`${item.imgUrl}`}
+                                alt={item.post_caption}
+                                loading="lazy"
+                            />
+                        </Link>
                     </ImageListItem>
                 ))}
             </ImageList>

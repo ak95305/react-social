@@ -5,35 +5,57 @@ import {
     signInWithPopup,
     signOut,
 } from "firebase/auth";
-import { auth, db } from "./firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { auth, db, storage } from "./firebase";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { ref, uploadBytesResumable } from "firebase/storage";
 
 const googleProvider = new GoogleAuthProvider();
 
 // Create User
-const signUp = async (obj) => {
+export const signUp = async (obj) => {
     try {
-        await createUserWithEmailAndPassword(auth, obj.email, obj.password).then(data=> {
-            
+        await createUserWithEmailAndPassword(
+            auth,
+            obj.email,
+            obj.password
+        ).then((data) => {
             let userData = {
                 bio: "",
                 name: obj.fullName,
                 gender: "",
                 no_of_post: 0,
-                user_img: ""
-            }
-    
-            setDoc(doc(db, "users", data.user.uid), userData)
+                user_img: "",
+            };
+
+            setDoc(doc(db, "users", data.user.uid), userData);
         });
-        
-        
-    } catch(error) {
+    } catch (error) {
         console.log(error);
     }
 };
 
+// Edit Profile
+export const editProfile = async (obj, id, imgFile) => {
+    const updRef = doc(db, "users", id);
+    await updateDoc(updRef, obj);
+
+    if(imgFile){
+        try{
+            const storageRef = ref(storage, `/users/${imgFile.name}`);
+            uploadBytesResumable(storageRef, imgFile);
+        } catch (error){
+            console.log(error)
+        }
+    }
+    setTimeout(()=>{
+        window.location.reload();
+    }, 2000);
+
+};
+
+
 // Sign In User
-const signIn = async (email, password) => {
+export const signIn = async (email, password) => {
     try {
         return await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
@@ -42,19 +64,17 @@ const signIn = async (email, password) => {
 };
 
 // SignOut
-const logOut = () => {
-    signOut(auth).then(()=>{
+export const logOut = () => {
+    signOut(auth).then(() => {
         return window.location.reload();
-    })
+    });
 };
 
 // Continue with Google
-const googleSignIn = () => {
+export const googleSignIn = () => {
     try {
         return signInWithPopup(auth, googleProvider);
     } catch (error) {
         console.log(error);
     }
 };
-
-export { signUp, signIn, logOut, googleSignIn };

@@ -1,42 +1,64 @@
-import { addDoc, collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import {
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    where,
+} from "firebase/firestore";
 import { auth, db, storage } from "./firebase";
-import { ref, uploadBytesResumable } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { redirect } from "react-router-dom";
 
 // Get User Details
-const getUser = async () => {
+export const getUser = async (id) => {
     let userDetails;
-    let user = auth.currentUser;
-    if(user){
-        const docRef = doc(db, "users", user.uid);
+    let user;
+    if (!id) {
+        user = auth.currentUser;
+        if (user) {
+            id = user.uid;
+        }
+    }
+    if (id) {
+        const docRef = doc(db, "users", id);
         const userData = await getDoc(docRef);
-    
+
         if (userData.exists()) {
             userDetails = userData.data();
-        }else{
-            console.log('error');
+        } else {
+            console.log("error");
         }
     }
 
-    return userDetails;
+    return [userDetails, user];
 };
 
-
 // Get User Posts
-const getUserPosts = async () => {
+export const getUserPosts = async (id) => {
     let userPosts;
-    let user = auth.currentUser;
-
-    if(user){
-        let postQuery = query(collection(db, "posts"), where("user_id", "==", user.uid))
-        userPosts = await getDocs(postQuery);
+    if (!id) {
+        let user = auth.currentUser;
+        if (user) {
+            id = user.uid;
+        }
     }
 
-    return userPosts;
-}
+    if (id) {
+        let postQuery = query(
+            collection(db, "posts"),
+            where("user_id", "==", id)
+        );
+        userPosts = await getDocs(postQuery);
 
+        return userPosts;
+    }
+};
 
 // Publish Post
-const publishPost = (obj) => {
+export const publishPost = (obj) => {
     const storageRef = ref(storage, `/posts/${obj.post_img.name}`);
     uploadBytesResumable(storageRef, obj.post_img);
 
@@ -46,12 +68,120 @@ const publishPost = (obj) => {
         post_caption: obj.post_caption,
         post_date: new Date(),
         post_img_url: obj.post_img.name,
-        user_id: user.uid
+        user_id: user.uid,
     };
 
-    addDoc(collection(db, "posts"), postData);
-}
+    return addDoc(collection(db, "posts"), postData);
+};
 
+// Get Posts
+export const getPosts = async () => {
+    const postsQuery = query(collection(db, "posts"));
+    try {
+        return await getDocs(postsQuery);
+    } catch (error) {
+        console.log(error);
+    }
+};
 
+// Get Single Post
+export const getSinglePost = async (id) => {
+    const docRef = doc(db, "posts", id);
 
-export { getUser, getUserPosts, publishPost };
+    try {
+        return await getDoc(docRef);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+// Get Post Image
+export const getPostImage = async (id, loc) => {
+    const pathRef = ref(storage, `gs://react-social-fee7f.appspot.com/${loc}/${id}`);
+    return await getDownloadURL(pathRef);
+};
+
+// Find user
+export const findUser = async (searchTerm) => {
+    let users;
+    if (searchTerm) {
+        let userQuery = query(
+            collection(db, "users"),
+            where("name", ">=", searchTerm),
+            where("name", ">=", searchTerm)
+        );
+        users = await getDocs(userQuery);
+
+        return users;
+    }
+};
+
+// Like Post
+export const likePost = async (post_id, handle) => {
+    let user = auth.currentUser;
+    let postLiked;
+
+    if (user) {
+        if (handle) {
+            if (post_id) {
+                let likeQuery = query(
+                    collection(db, "likes"),
+                    where("post_id", "==", post_id),
+                    where("user_id", "==", user.uid)
+                );
+
+                postLiked = await getDocs(likeQuery);
+
+                if (postLiked.docs.length == 0) {
+                    let likeData = {
+                        user_id: user.uid,
+                        post_id: post_id,
+                    };
+                    addDoc(collection(db, "likes"), likeData);
+                    return true;
+                } else {
+                    // console.log("hey");
+                    let likeFindQuery = query(
+                        collection(db, "likes"),
+                        where("post_id", "==", post_id),
+                        where("user_id", "==", user.uid)
+                    );
+
+                    await getDocs(likeFindQuery).then((item) => {
+                        deleteDoc(doc(db, "likes", item.docs[0].id));
+                    });
+                    return false;
+                }
+            }
+        } else {
+            if (post_id) {
+                let likeQuery = query(
+                    collection(db, "likes"),
+                    where("post_id", "==", post_id),
+                    where("user_id", "==", user.uid)
+                );
+
+                postLiked = await getDocs(likeQuery);
+
+                if (postLiked.docs.length > 0) {
+                    return true;
+                }
+            }
+        }
+    }
+};
+
+// Like Count
+export const likeCount = async (post_id) => {
+    let likeCount;
+
+    if (post_id) {
+        let countQuery = query(
+            collection(db, "likes"),
+            where("post_id", "==", post_id)
+        );
+        likeCount = await getDocs(countQuery);
+
+        return likeCount;
+    }
+};

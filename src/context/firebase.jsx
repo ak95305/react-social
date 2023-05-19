@@ -1,13 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { collection, getDocs, getFirestore, query } from "firebase/firestore";
-import { signIn, signUp, logOut, googleSignIn } from "./user-actions";
-import { getUser, getUserPosts, publishPost } from "./database-actions";
-import { getDownloadURL, getStorage, ref } from "firebase/storage";
-
-
-
+import { getFirestore } from "firebase/firestore";
+import { signUp, signIn, logOut, googleSignIn, editProfile } from "./user-actions";
+import { getUser, getUserPosts, publishPost, getPosts, getPostImage, getSinglePost, findUser, likePost, likeCount } from "./database-actions";
+import { getStorage } from "firebase/storage";
 
 // Contants
 const firebaseConfig = {
@@ -25,9 +22,6 @@ const useFirebase = () => useContext(FirebaseContext);
 const db = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 
-
-
-
 const FirebaseProvider = (props) => {
 
 
@@ -36,7 +30,6 @@ const FirebaseProvider = (props) => {
     let isLoggedIn = false;
     let curUser = null;
 
-    
     
     
     //Manage User State
@@ -53,52 +46,35 @@ const FirebaseProvider = (props) => {
         isLoggedIn = false;
     }
 
-
-
     
-    // Get Posts
-    const getPosts = async () => {
-        const postsQuery = query(collection(db, "posts"));
-        try {
-            return await getDocs(postsQuery);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    // Get Post Image
-    const getPostImage = (id) => {
-        const pathRef = ref(storage, `posts/${id}`);
-        return getDownloadURL(pathRef);
-    }
-
-
-
-
+    
+    
     const firebaseFunctions = {
+        isLoggedIn,
+        curUser,
         signUp,
         signIn,
         logOut,
-        isLoggedIn,
         googleSignIn,
-        getPosts,
-        curUser,
         getUser,
         getUserPosts,
         publishPost,
-        getPostImage
+        getPosts,
+        getPostImage,
+        getSinglePost,
+        findUser,
+        editProfile,
+        likePost,
+        likeCount
     };
 
-
-
-
+    
+    
     return (
         <FirebaseContext.Provider value={firebaseFunctions}>
             {props.children}
         </FirebaseContext.Provider>
     );
 };
-
-
 
 export { FirebaseProvider, useFirebase, auth, db, storage };

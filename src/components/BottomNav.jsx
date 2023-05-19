@@ -6,7 +6,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import { useNavigate } from "react-router-dom";
 
 function BottomNav(props) {
-    const [value, setValue] = useState(0);
+    const [value, setValue] = useState();
     const navigate = useNavigate();
 
     useEffect(()=>{
@@ -17,6 +17,8 @@ function BottomNav(props) {
                 return setValue(1)
             case '/profile':
                 return setValue(2)
+            default:
+                return;
         }
     }, []);
 

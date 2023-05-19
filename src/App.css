@@ -2,16 +2,22 @@
     height: 100vh;
     overflow: hidden;
     padding-top: 65px;
+    padding-bottom: 56px;
 }
 
-.home::-webkit-scrollbar{
+.home::-webkit-scrollbar,
+.profile::-webkit-scrollbar,
+.post-view::-webkit-scrollbar,
+.addpost::-webkit-scrollbar,
+.user-search::-webkit-scrollbar,
+.edit-profile::-webkit-scrollbar{
     display: none;
 }
 
-.home, .profile{
+.home, .profile, .addpost, .post-view, .user-search, .edit-profile{
     height: 100%;
     overflow: auto;
-    padding-bottom: 120px;
+    padding: 10px;
 }
 
 .bottom-nav{
@@ -56,4 +62,8 @@ a, a:hover, a:focus{
 .google-btn{
     margin: auto;
     margin-top: 20px;
+}
+
+.edit-profile .input-text{
+    margin-bottom: 10px;
 }

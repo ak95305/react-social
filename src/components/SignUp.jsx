@@ -13,10 +13,6 @@ function SignUp() {
         password: ""
     });
 
-    // const [username, setUsername] = useState(null);
-    // const [fullName, setFullName] = useState(null);
-    // const [password, setPassword] = useState(null);
-
 
     return (
         <>

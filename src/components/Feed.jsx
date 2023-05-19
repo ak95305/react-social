@@ -9,7 +9,7 @@ function Feed() {
 
     useEffect(() => {
         firebase.getPosts().then((data) => {
-            setPosts(data.docs);
+            setPosts(data.docs)
         });
     }, []);
     
@@ -19,13 +19,13 @@ function Feed() {
                 container
                 alignItems="center"
                 justifyContent="center"
-                py={2}
+                pt={2}
                 rowSpacing={2}
             >
                 {posts.map((item) => {
                     return (
                         <Grid item key={item.id}>
-                            <Post post={item}/>
+                            <Post post={item.data()} id={item.id}/>
                         </Grid>
                     );
                 })}
