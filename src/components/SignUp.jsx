@@ -53,6 +53,7 @@ function SignUp() {
                             id="outlined-basic"
                             label="Full Name"
                             variant="outlined"
+                            required
                             onChange={(evt) =>
                                 setSignUpData({
                                     ...signUpData,
@@ -65,6 +66,7 @@ function SignUp() {
                             id="outlined-basic"
                             label="Email"
                             variant="outlined"
+                            required
                             onChange={(evt) =>
                                 setSignUpData({
                                     ...signUpData,
@@ -77,6 +79,8 @@ function SignUp() {
                             id="outlined-basic"
                             label="Password"
                             variant="outlined"
+                            required
+                            type="password"
                             onChange={(evt) =>
                                 setSignUpData({
                                     ...signUpData,

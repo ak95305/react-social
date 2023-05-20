@@ -76,13 +76,16 @@ function SignIn() {
                             label="Email"
                             variant="outlined"
                             onChange={(evt) => setEmail(evt.target.value)}
+                            required
                         />
                         <TextField
                             className="input"
                             id="outlined-basic"
                             label="Password"
                             variant="outlined"
+                            type="password"
                             onChange={(evt) => setPassword(evt.target.value)}
+                            required
                         />
                         <br />
                         <Button
