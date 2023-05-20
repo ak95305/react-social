@@ -1,4 +1,4 @@
-import SignIn from "./components/signin";
+import SignIn from "./components/SignIn";
 import "./App.css";
 import Header from "./components/header";
 import { Route, Routes, useLocation } from "react-router-dom";
