@@ -1,6 +1,6 @@
 import SignIn from "./components/SignIn";
 import "./App.css";
-import Header from "./components/header";
+import Header from "./components/Header";
 import { Route, Routes, useLocation } from "react-router-dom";
 import SignUp from "./components/SignUp";
 import Home from "./components/Home";
