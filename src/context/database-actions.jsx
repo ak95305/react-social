@@ -99,12 +99,8 @@ export const getSinglePost = async (id) => {
 
 // Get Post Image
 export const getPostImage = async (id, loc) => {
-    if(loc || id){
-        const pathRef = ref(storage, `gs://react-social-fee7f.appspot.com/${loc}/${id}`);
-        return await getDownloadURL(pathRef).then(data=>{
-            console.log(data);
-        });
-    }
+    const pathRef = ref(storage, `gs://react-social-fee7f.appspot.com/${loc}/${id}`);
+    return await getDownloadURL(pathRef);
 };
 
 // Find user
