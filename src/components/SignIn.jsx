@@ -9,26 +9,38 @@ function SignIn() {
     const firebase = useFirebase();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    const [emailError, setEmailError] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
-        if(firebase.isLoggedIn) {
+        if (firebase.isLoggedIn) {
             navigate("/home");
         }
     }, [firebase.isLoggedIn]);
 
     const handleSignin = async () => {
-        let user = await firebase
-            .signIn(email, password)
-            .then((data) => data)
-            .catch((error) => console.log(error));
-
-        if (user) {
-            console.log("Logged In");
-            navigate("/home");
-        } else {
-            console.log("Not Logged in");
+        if(email && password){
+            let user = await firebase
+                .signIn(email, password)
+                .then((data) => data)
+                .catch((error) => console.log(error));
+    
+            if (user) {
+                console.log("Logged In");
+                navigate("/home");
+            } else {
+                console.log("Not Logged in");
+            }
+        }else{
+            if(email == ""){
+                setEmailError(true);
+            }
+            if(password == ""){
+                setPasswordError(true);
+            }
         }
+
     };
 
     return (
@@ -64,6 +76,8 @@ function SignIn() {
                         }}
                     />
                     <Box
+                        component="form"
+                        noValidate
                         sx={{
                             maxWidth: "80%",
                             margin: "auto",
@@ -71,14 +85,18 @@ function SignIn() {
                         }}
                     >
                         <TextField
+                            helperText= {emailError && "Must not be Empty"}
                             className="input"
                             id="outlined-basic"
                             label="Email"
                             variant="outlined"
                             onChange={(evt) => setEmail(evt.target.value)}
                             required
-                        />
+                            error={emailError}
+                            />
                         <TextField
+                            error={passwordError}
+                            helperText= {passwordError && "Must not be Empty"}
                             className="input"
                             id="outlined-basic"
                             label="Password"
