@@ -29,8 +29,10 @@ export const signUp = async (obj) => {
 
             setDoc(doc(db, "users", data.user.uid), userData);
         });
+        return true;
     } catch (error) {
         console.log(error);
+        return false;
     }
 };
 

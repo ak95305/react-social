@@ -25,39 +25,48 @@ function Post(props) {
     const [userImg, setUserImg] = useState(null);
     const firebase = useFirebase();
     const post = props.post;
-    
-    const date = post && post.post_date.seconds * 1000 + post.post_date.nanoseconds / 1000000;
-    const postDate =post && new Date(date).toDateString().split(" ").slice(1).join(" ");
-    
 
-    if(user == null && post){
-        firebase.getUser(post.user_id).then(data=>{
+    const date =
+        post &&
+        post.post_date.seconds * 1000 + post.post_date.nanoseconds / 1000000;
+    const postDate =
+        post && new Date(date).toDateString().split(" ").slice(1).join(" ");
+
+    if (user == null && post) {
+        firebase.getUser(post.user_id).then((data) => {
             setUser(data[0]);
-        })
+        });
     }
 
-    user && firebase.getPostImage(user.user_img, "users").then(url=>{
-        setUserImg(url);
-    }).catch(error=>{
-        console.log(error);
-    })
+    if (user) {
+        user &&
+            firebase
+                .getPostImage(user.user_img, "users")
+                .then((url) => {
+                    setUserImg(url);
+                })
+                .catch((error) => {
+                    return error;
+                });
+    }
 
-    post && firebase.getPostImage(post.post_img_url, "posts").then((url) => {
+    post &&
+        firebase.getPostImage(post.post_img_url, "posts").then((url) => {
             setImgUrl(url);
         });
 
-    firebase.likePost(props.id, false).then(data=>{
+    firebase.likePost(props.id, false).then((data) => {
         setLike(data);
-    })
+    });
 
-    firebase.likeCount(props.id).then(data=>{
-        if(data){
+    firebase.likeCount(props.id).then((data) => {
+        if (data) {
             setLikeCount(data.docs.length);
         }
-    })
+    });
 
     const handleLike = () => {
-        firebase.likePost(props.id, true).then(data=>{
+        firebase.likePost(props.id, true).then((data) => {
             setLike(data);
         });
     };
@@ -67,7 +76,11 @@ function Post(props) {
             <Card sx={{ maxWidth: 500, mb: 1, minWidth: 345 }}>
                 <CardHeader
                     avatar={
-                        <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe" src={userImg && userImg}>
+                        <Avatar
+                            sx={{ bgcolor: red[500] }}
+                            aria-label="recipe"
+                            src={userImg && userImg}
+                        >
                             R
                         </Avatar>
                     }
@@ -89,10 +102,12 @@ function Post(props) {
                     <IconButton
                         aria-label="add to favorites"
                         onClick={handleLike}
-                        sx={{color: like ? "#e30817" : ""}}
+                        sx={{ color: like ? "#e30817" : "" }}
                     >
                         <FavoriteIcon />
-                        <Typography sx={{fontSize: "16px", ml: 1}}>{likeCount}</Typography>
+                        <Typography sx={{ fontSize: "16px", ml: 1 }}>
+                            {likeCount}
+                        </Typography>
                     </IconButton>
                 </CardActions>
             </Card>

@@ -5,12 +5,13 @@ import {
     doc,
     getDoc,
     getDocs,
+    limit,
+    orderBy,
     query,
     where,
 } from "firebase/firestore";
 import { auth, db, storage } from "./firebase";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { redirect } from "react-router-dom";
 
 // Get User Details
 export const getUser = async (id) => {
@@ -76,7 +77,8 @@ export const publishPost = (obj) => {
 
 // Get Posts
 export const getPosts = async () => {
-    const postsQuery = query(collection(db, "posts"));
+    const postsQueryRef = query(collection(db, "posts"));
+    const postsQuery = query(postsQueryRef, orderBy("post_date", "desc"));
     try {
         return await getDocs(postsQuery);
     } catch (error) {
@@ -97,8 +99,12 @@ export const getSinglePost = async (id) => {
 
 // Get Post Image
 export const getPostImage = async (id, loc) => {
-    const pathRef = ref(storage, `gs://react-social-fee7f.appspot.com/${loc}/${id}`);
-    return await getDownloadURL(pathRef);
+    if(loc || id){
+        const pathRef = ref(storage, `gs://react-social-fee7f.appspot.com/${loc}/${id}`);
+        return await getDownloadURL(pathRef).then(data=>{
+            console.log(data);
+        });
+    }
 };
 
 // Find user
