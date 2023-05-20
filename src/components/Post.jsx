@@ -30,7 +30,7 @@ function Post(props) {
     const postDate =post && new Date(date).toDateString().split(" ").slice(1).join(" ");
     
 
-    if(user == null){
+    if(user == null && post){
         firebase.getUser(post.user_id).then(data=>{
             setUser(data[0]);
         })
@@ -51,7 +51,9 @@ function Post(props) {
     })
 
     firebase.likeCount(props.id).then(data=>{
-        setLikeCount(data.docs.length);
+        if(data){
+            setLikeCount(data.docs.length);
+        }
     })
 
     const handleLike = () => {
@@ -62,7 +64,7 @@ function Post(props) {
 
     return (
         <div className="post">
-            <Card sx={{ maxWidth: 500, mb: 1 }}>
+            <Card sx={{ maxWidth: 500, mb: 1, minWidth: 345 }}>
                 <CardHeader
                     avatar={
                         <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe" src={userImg && userImg}>

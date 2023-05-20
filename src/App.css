@@ -1,8 +1,19 @@
+body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eee;
+}
+
 .app{
     height: 100vh;
     overflow: hidden;
     padding-top: 65px;
     padding-bottom: 56px;
+    max-width: 345px;
+    position: relative;
+    width: 100%;
+    background-color: #fff;
 }
 
 .home::-webkit-scrollbar,
@@ -18,10 +29,11 @@
     height: 100%;
     overflow: auto;
     padding: 10px;
+    min-width: 340px;
 }
 
 .bottom-nav{
-    position: fixed;
+    position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
@@ -48,7 +60,8 @@ a, a:hover, a:focus{
 
 .header{
     background-color: rgb(52, 52, 52);
-    position: fixed;
+    position: absolute;
+    left: 0;
     top: 0;
     width: 100%;
     z-index: 2;
