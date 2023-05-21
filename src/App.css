@@ -6,7 +6,7 @@ body{
 }
 
 .app{
-    height: 90vh;
+    height: 100vh;
     overflow: hidden;
     padding-top: 65px;
     padding-bottom: 56px;
@@ -33,10 +33,11 @@ body{
 }
 
 .bottom-nav{
-    position: absolute;
+    position: fixed;
     bottom: 0;
-    left: 0;
-    width: 100%;
+    left: 50%;
+    width: 345px;
+    transform: translateX(-50%);
     border-top: 1px solid #aaa;
 }
 
